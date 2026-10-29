@@ -1,23 +1,19 @@
 <!doctype html><html lang="ko"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0b0b0d"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#140a12"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="오늘의 한 잔">
 <link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png"><link rel="icon" href="icons/icon-192.png">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <title>오늘의 한 잔</title><link rel="stylesheet" href="css/app.css"></head><body>
-<div class="view active" data-v="today"><header class="lt"><p id="date" class="eyebrow"></p><h1>오늘</h1></header>
-<p class="sec">오늘의 추천</p><div id="today"></div>
-<p class="foot">만 19세 이상 · 적당히 즐겨 주세요 · 음주운전은 절대 안 돼요</p></div>
-<div class="view" data-v="search"><header class="lt"><p class="eyebrow">레시피 60+</p><h1>검색</h1></header>
+<div class="view active" data-v="today"><header class="lt"><p id="date" class="eyebrow"></p><h1>오늘의 한 잔</h1><p class="hi">오늘 밤은 이 한 잔 어때요? 🍸</p></header>
+<div id="today"></div>
+<p class="foot">만 19세 이상 · 천천히, 적당히 즐겨요 💛 · 음주운전은 절대 안 돼요</p></div>
+<div class="view" data-v="search"><header class="lt"><p class="eyebrow">레시피 60+</p><h1>뭐랑 마셔 볼까요?</h1><p class="hi">집에 있는 술 이름만 알려 주세요 🍋</p></header>
 <form id="f" class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" type="search" placeholder="술 이름 · 종류 (진, rum, 소주…)" autocomplete="off" enterkeyhint="search"></form>
-<div id="chips" class="chips"></div><div id="results"><div class="empty"><div class="ei">🔍</div><b>무엇으로 만들어 볼까요?</b><span>술 이름을 입력하거나 위 종류를 눌러 보세요.</span></div></div><p id="net" class="foot"></p></div>
-<div class="view" data-v="create"><header class="lt"><p class="eyebrow">규칙 기반 조합</p><h1>창작</h1></header>
-<div id="creative"></div><button id="again" class="btn">다른 조합 보기</button><p class="foot">검색 탭에서 고른 술이 베이스로 쓰여요.</p></div>
-<div class="view" data-v="story"><header class="lt"><p class="eyebrow">하루 한 편</p><h1>이야기</h1></header>
-<div class="card story"><span class="badge">오늘의 술 이야기</span><p id="story"></p></div></div>
-<nav class="tabs">
-<button data-t="today" class="on"><svg viewBox="0 0 24 24"><path d="M5 4h14l-7 8z"/><path d="M12 12v7M8 20h8"/></svg>오늘</button>
-<button data-t="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>검색</button>
-<button data-t="create"><svg viewBox="0 0 24 24"><path d="M12 3l2.2 5.6L20 9l-4.5 3.8L17 19l-5-3.2L7 19l1.5-6.2L4 9l5.8-.4z"/></svg>창작</button>
-<button data-t="story"><svg viewBox="0 0 24 24"><path d="M5 4h10a4 4 0 0 1 4 4v12H9a4 4 0 0 1-4-4z"/><path d="M9 9h6M9 13h6"/></svg>이야기</button></nav>
+<div id="chips" class="chips"></div><div id="results"><div class="empty"><div class="ei">🥃</div><b>오늘은 어떤 술이 있나요?</b><span>이름을 적거나 위 칩을 톡 눌러 보세요.</span></div></div><p id="net" class="foot"></p></div>
+<div class="view" data-v="create"><header class="lt"><p class="eyebrow">규칙 기반 조합</p><h1>바텐더의 실험실</h1><p class="hi">세상에 없던 한 잔을 섞어 봤어요 ✨</p></header>
+<div id="creative"></div><button id="again" class="btn">🎲 다른 조합 흔들기</button><p class="foot">검색에서 고른 술이 베이스가 돼요. 맛은 취향껏 조절해 주세요!</p></div>
+<div class="view" data-v="story"><header class="lt"><p class="eyebrow">하루 한 편</p><h1>바 한켠 이야기</h1><p class="hi">한 잔 곁들이며 듣는 오늘의 이야기 📖</p></header>
+<div class="card story"><span class="big">🕯️</span><span class="badge">오늘의 술 이야기</span><p id="story"></p></div><p class="foot">이야기는 매일 자정(KST)에 새로 바뀌어요.</p></div>
+<nav class="tabs"><button data-t="today" class="on"><i>🍸</i>오늘</button><button data-t="search"><i>🔎</i>검색</button><button data-t="create"><i>🧪</i>창작</button><button data-t="story"><i>📜</i>이야기</button></nav>
 <script src="js/recipes.js"></script><script src="js/stories.js"></script><script src="js/app.js"></script></body></html>

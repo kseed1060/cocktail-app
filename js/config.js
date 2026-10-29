@@ -1,0 +1,1 @@
+window.CKT_VAPID_PUBLIC="BFfougGW8lAGc6kyLEhwFO9wKUDu3CcfpHxMCeVdjYgWuyWagERq6VYHJo7yDa5K_y7I9Vs-vM1IS5y4fiHgdjs";

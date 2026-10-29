@@ -1,0 +1,25 @@
+name: 오늘의 한 잔 알림
+on:
+  schedule:
+    - cron: "0 10 * * *"   # 매일 19:00 KST
+    - cron: "0 1 * * *"    # 매일 10:00 KST (기념일에만 발송)
+  workflow_dispatch:
+    inputs:
+      mode: { description: "evening 또는 morning", default: "evening" }
+      dry_run: { description: "1이면 보내지 않음", default: "0" }
+permissions: { contents: read }
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: npm i --no-save --no-package-lock web-push@3
+      - run: node tools/send.mjs
+        env:
+          MODE: ${{ github.event_name == 'schedule' && (github.event.schedule == '0 1 * * *' && 'morning' || 'evening') || inputs.mode }}
+          DRY_RUN: ${{ inputs.dry_run || '0' }}
+          VAPID_PUBLIC: ${{ secrets.VAPID_PUBLIC }}
+          VAPID_PRIVATE: ${{ secrets.VAPID_PRIVATE }}
+          SUBSCRIPTIONS: ${{ secrets.SUBSCRIPTIONS }}

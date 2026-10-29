@@ -35,3 +35,4 @@ input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none}
 .garb{margin-top:16px;padding:12px 14px;border-radius:16px;background:#7be0a014;border:1px solid #7be0a033;position:relative}.garb span{display:block;font-size:12px;font-weight:700;color:#9fe8b8;margin-bottom:2px}.garb b{display:block;font-size:14px}.garb p{margin:2px 0 0;font-size:13px;color:var(--sub);line-height:1.5}
 .tip{margin-top:12px;font-size:13px;color:#ffd29a;background:#ffb35c12;border-radius:14px;padding:10px 12px;position:relative}
 .brand{background:linear-gradient(150deg,#4a1d3a,#24101d)}
+.notif{margin-top:8px}.code{width:100%;height:72px;margin:12px 0 8px;background:#0006;color:#ffd29a;border:1px solid var(--line);border-radius:14px;padding:10px;font:12px ui-monospace,monospace;word-break:break-all;resize:none}.btn.ghost2{background:#ffffff14;color:var(--tx);box-shadow:none;height:48px}

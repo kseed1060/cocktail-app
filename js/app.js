@@ -52,7 +52,7 @@ if(navigator.onLine&&(API[b]||(!b&&/^[a-z ]+$/.test(ql)&&ql))){$("results").inse
 const j=await (await fetch("https://www.thecocktaildb.com/api/json/v1/1/"+u)).json();const d=(j.drinks||[]).slice(0,6);$("sk")?.remove();
 if(d.length)$("results").insertAdjacentHTML("beforeend",`<p class="sub2">🌍 세계 바텐더들의 레시피 (영어)</p>`+d.map(x=>`<div class="card mini"><img class="th" src="${esc(x.strDrinkThumb)}/preview" alt=""><h3>${esc(x.strDrink)}</h3><div class="en">${x.strInstructions?esc(x.strInstructions.slice(0,140)):"자세한 레시피는 thecocktaildb.com에서 볼 수 있어요."}</div><div style="clear:both"></div></div>`).join(""))}catch(e){}$("sk")?.remove()}}
 function init(){const d=kst(),n=dayN(d);const[y,mo,da]=d.split("-");$("date").textContent=`${+mo}월 ${+da}일 · KST`;
-$("today").innerHTML=card(R[(n*7)%R.length]);$("story").textContent=S[n%S.length];
+const qs=new URLSearchParams(location.search),pc=qs.get("c")&&R.find(r=>r[1]===qs.get("c"));$("today").innerHTML=card(pc||R[(n*7)%R.length]);$("story").textContent=S[n%S.length];
 curSeed=hash(d);renderCreative();
 $("chips").innerHTML=Object.values(ING_BASE).map(x=>`<span class="pill">${x}</span>`).join("");
 $("chips").onclick=e=>{if(e.target.matches(".pill")){$("q").value=e.target.textContent;search($("q").value)}};
@@ -60,5 +60,26 @@ $("f").onsubmit=e=>{e.preventDefault();search($("q").value)};
 $("again").onclick=()=>{curSeed=(curSeed*31+7)>>>0;const el=$("creative");el.classList.remove("shuffle");void el.offsetWidth;el.classList.add("shuffle");setTimeout(renderCreative,140)};
 $("net").textContent=navigator.onLine?"🌍 온라인이라 세계 레시피도 함께 찾아 드려요":"📦 오프라인이에요. 앱에 담긴 레시피로 보여 드려요";
 document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("on",x===b));document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.dataset.v===b.dataset.t));scrollTo(0,0)});
+const tb=qs.get("tab");if(tb)document.querySelector(`.tabs button[data-t="${tb}"]`)?.click();
+setupPush();
 if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js")}
 init();
+
+function setupPush(){const out=$("nout"),btn=$("nbtn");if(!btn)return;
+const ios=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1),sa=navigator.standalone===true||matchMedia("(display-mode: standalone)").matches;
+const sup="serviceWorker"in navigator&&"PushManager"in window&&"Notification"in window;
+const b64=s=>{const p="=".repeat((4-s.length%4)%4),r=atob((s+p).replace(/-/g,"+").replace(/_/g,"/"));return Uint8Array.from(r,c=>c.charCodeAt(0))};
+const enc=o=>"CKT1."+btoa(String.fromCharCode(...new TextEncoder().encode(JSON.stringify(o)))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+const show=sub=>{const j=sub.toJSON(),code=enc({e:j.endpoint,p:j.keys.p256dh,a:j.keys.auth});
+out.innerHTML=`<div class="gar">✅ 이 기기에서 알림을 켰어요! 아래 코드를 복사해서 저에게 보내 주시면 등록해 드릴게요.</div><textarea id="ncode" readonly class="code">${code}</textarea><button id="ncopy" class="btn ghost2">코드 복사하기</button>`;
+$("ncopy").onclick=async()=>{try{await navigator.clipboard.writeText(code)}catch(_){$("ncode").select();document.execCommand("copy")}$("ncopy").textContent="복사했어요 👍"}};
+btn.onclick=async()=>{
+if(ios&&!sa){out.innerHTML=`<div class="gar">📱 아이폰은 홈 화면 앱에서만 알림을 받을 수 있어요.<br>① 사파리 아래 <b>공유</b> 버튼 → ② <b>홈 화면에 추가</b> → ③ 홈 화면의 '오늘의 한 잔' 아이콘으로 열고 다시 눌러 주세요.</div>`;return}
+if(!sup){out.innerHTML=`<div class="gar">이 브라우저는 알림을 지원하지 않아요. 아이폰은 iOS 16.4 이상, PC는 크롬·엣지·사파리 최신 버전에서 돼요.</div>`;return}
+btn.disabled=true;btn.textContent="잠시만요…";
+try{const perm=await Notification.requestPermission();if(perm!=="granted"){out.innerHTML=`<div class="gar">알림이 꺼져 있어요. 설정 → 알림 → '오늘의 한 잔'에서 허용해 주세요.</div>`;return}
+const reg=await navigator.serviceWorker.ready;let sub=await reg.pushManager.getSubscription();
+if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64(window.CKT_VAPID_PUBLIC)});show(sub)}
+catch(e){out.innerHTML=`<div class="gar">앗, 알림 켜기에 실패했어요 (${esc(e.message)}). 잠시 뒤 다시 시도해 주세요.</div>`}
+finally{btn.disabled=false;btn.textContent="알림 받기"}};
+if(sup&&Notification.permission==="granted")navigator.serviceWorker.ready.then(r=>r.pushManager.getSubscription()).then(s=>{if(s)show(s)})}

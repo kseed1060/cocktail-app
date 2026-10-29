@@ -52,7 +52,7 @@ if(navigator.onLine&&(API[b]||(!b&&/^[a-z ]+$/.test(ql)&&ql))){$("results").inse
 const j=await (await fetch("https://www.thecocktaildb.com/api/json/v1/1/"+u)).json();const d=(j.drinks||[]).slice(0,6);$("sk")?.remove();
 if(d.length)$("results").insertAdjacentHTML("beforeend",`<p class="sub2">🌍 세계 바텐더들의 레시피 (영어)</p>`+d.map(x=>`<div class="card mini"><img class="th" src="${esc(x.strDrinkThumb)}/preview" alt=""><h3>${esc(x.strDrink)}</h3><div class="en">${x.strInstructions?esc(x.strInstructions.slice(0,140)):"자세한 레시피는 thecocktaildb.com에서 볼 수 있어요."}</div><div style="clear:both"></div></div>`).join(""))}catch(e){}$("sk")?.remove()}}
 function init(){const d=kst(),n=dayN(d);const[y,mo,da]=d.split("-");$("date").textContent=`${+mo}월 ${+da}일 · KST`;
-const qs=new URLSearchParams(location.search),pc=qs.get("c")&&R.find(r=>r[1]===qs.get("c"));$("today").innerHTML=card(pc||R[(n*7)%R.length]);$("story").textContent=S[n%S.length];
+const qs=new URLSearchParams(location.search),pc=qs.get("c")&&R.find(r=>r[1]===qs.get("c"));$("today").innerHTML=card(pc||R[(n*7)%R.length]);renderStories(n);
 curSeed=hash(d);renderCreative();
 $("chips").innerHTML=Object.values(ING_BASE).map(x=>`<span class="pill">${x}</span>`).join("");
 $("chips").onclick=e=>{if(e.target.matches(".pill")){$("q").value=e.target.textContent;search($("q").value)}};
@@ -61,7 +61,7 @@ $("again").onclick=()=>{curSeed=(curSeed*31+7)>>>0;const el=$("creative");el.cla
 $("net").textContent=navigator.onLine?"🌍 온라인이라 세계 레시피도 함께 찾아 드려요":"📦 오프라인이에요. 앱에 담긴 레시피로 보여 드려요";
 document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("on",x===b));document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.dataset.v===b.dataset.t));scrollTo(0,0)});
 const tb=qs.get("tab");if(tb)document.querySelector(`.tabs button[data-t="${tb}"]`)?.click();
-setupPush();
+setupPush();const si=qs.get("s");if(si!==null&&ST[+si])openStory(+si);
 if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js")}
 init();
 
@@ -83,3 +83,17 @@ if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationSer
 catch(e){out.innerHTML=`<div class="gar">앗, 알림 켜기에 실패했어요 (${esc(e.message)}). 잠시 뒤 다시 시도해 주세요.</div>`}
 finally{btn.disabled=false;btn.textContent="알림 받기"}};
 if(sup&&Notification.permission==="granted")navigator.serviceWorker.ready.then(r=>r.pushManager.getSubscription()).then(s=>{if(s)show(s)})}
+
+function md(n,k){const d=new Date((n-k)*864e5);return `${d.getUTCMonth()+1}월 ${d.getUTCDate()}일`}
+function renderStories(n){const i=n%ST.length,t=ST[i];
+$("story").innerHTML=`<span class="big">🕯️</span><span class="badge">오늘의 술 이야기</span><h3>${esc(t.t)}</h3><p>${esc(t.s)}</p><span class="more">자세히 읽기 →</span>`;$("story").onclick=()=>openStory(i);
+let h="";for(let k=1;k<=14;k++){const j=((n-k)%ST.length+ST.length)%ST.length,x=ST[j];h+=`<button class="pitem" data-i="${j}"><span class="pd">${md(n,k)}</span><b>${esc(x.t)}</b><span class="ps">${esc(x.s)}</span></button>`}
+$("past").innerHTML=h;$("past").onclick=e=>{const b=e.target.closest(".pitem");if(b)openStory(+b.dataset.i)};initSheet()}
+function openStory(i){const x=ST[i],sh=$("sheet");$("sbody").innerHTML=`<span class="badge">📜 술 이야기</span><h2>${esc(x.t)}</h2><p class="lead">${esc(x.s)}</p>${x.d.map(p=>`<p>${esc(p)}</p>`).join("")}<p class="foot">“~로 알려져 있어요”는 여러 설이 있거나 확실하지 않은 이야기예요.</p>`;
+sh.classList.add("on");sh.setAttribute("aria-hidden","false");document.body.style.overflow="hidden";sh.querySelector(".panel").scrollTop=0;sh.querySelector(".panel").style.transform="";if(!history.state||!history.state.sheet)history.pushState({sheet:1},"")}
+function closeStory(fromPop){const sh=$("sheet");if(!sh.classList.contains("on"))return;sh.classList.remove("on");sh.setAttribute("aria-hidden","true");document.body.style.overflow="";if(!fromPop&&history.state&&history.state.sheet)history.back()}
+function initSheet(){if(window._shI)return;window._shI=1;const sh=$("sheet"),pn=sh.querySelector(".panel");
+sh.addEventListener("click",e=>{if(e.target.closest("[data-x]"))closeStory()});addEventListener("popstate",()=>closeStory(true));addEventListener("keydown",e=>{if(e.key==="Escape")closeStory()});
+let y0=null,dy=0;pn.addEventListener("touchstart",e=>{if(pn.scrollTop<=0){y0=e.touches[0].clientY;dy=0;pn.style.transition="none"}},{passive:true});
+pn.addEventListener("touchmove",e=>{if(y0===null)return;dy=e.touches[0].clientY-y0;if(dy>0){pn.style.transform=`translateY(${dy}px)`;e.cancelable&&e.preventDefault()}},{passive:false});
+pn.addEventListener("touchend",()=>{if(y0===null)return;pn.style.transition="";pn.style.transform="";if(dy>110)closeStory();y0=null})}

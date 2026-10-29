@@ -1,0 +1,11 @@
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% -20%,#3a2418,#0f0b0a 60%) fixed;color:#efe4d6;font:15px/1.55 -apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;padding-bottom:env(safe-area-inset-bottom)}
+header{padding:calc(18px + env(safe-area-inset-top)) 18px 8px;max-width:640px;margin:auto}.brand{font:700 22px Georgia,serif;color:#d9b26f;letter-spacing:.5px}
+main{max-width:640px;margin:auto;padding:0 14px 30px}h2{font:600 16px Georgia,serif;color:#d9b26f;margin:22px 4px 10px;display:flex;gap:8px;align-items:center}
+.muted{color:#9d8c7a;font-size:13px}.card{background:linear-gradient(160deg,#211813,#16110e);border:1px solid #3b2b20;border-radius:16px;padding:16px;margin-bottom:10px;box-shadow:0 8px 24px #0007}
+.card h3{margin:0;font:600 19px Georgia,serif;color:#f3d9a4}.en{color:#9d8c7a;font-size:13px}.meta{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.pill{font-size:12px;border:1px solid #5a4330;border-radius:99px;padding:2px 9px;color:#cdb79a}ul{margin:6px 0;padding-left:18px}li b{color:#e8c98c;font-weight:600}
+.tag{font:600 11px sans-serif;background:#7a2e1f;color:#ffd9c4;border-radius:6px;padding:2px 7px}form{display:flex;gap:8px}
+input{flex:1;background:#1b1410;border:1px solid #4a3626;color:#efe4d6;border-radius:12px;padding:12px;font-size:16px}
+button{background:#c8963e;color:#1a120c;border:0;border-radius:12px;padding:0 16px;font-weight:700;font-size:15px}button.ghost{background:none;border:1px solid #5a4330;color:#d9b26f;padding:10px;width:100%}
+#chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}#chips span{cursor:pointer}.story{font-size:15px}.foot{text-align:center;color:#8a7a69;font-size:12px;margin-top:26px}
+.mini{padding:12px 14px}.mini h3{font-size:16px}details summary{cursor:pointer;list-style:none}img.th{width:56px;height:56px;border-radius:10px;float:right;margin-left:10px}

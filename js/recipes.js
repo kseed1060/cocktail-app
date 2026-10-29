@@ -125,4 +125,3 @@ const G={
 "Makgeolli Lemonade":["레몬","휠","잔에 띄우기"],
 "Makgeolli & Cider":["없음","—","가니시 없이 그대로"]
 };
-R.forEach(r=>{const g=G[r[1]];r.garnish={item:g[0],form:g[1],method:g[2]}});

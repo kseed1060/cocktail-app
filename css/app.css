@@ -33,3 +33,5 @@ input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none}
 .tabs button{flex:1;background:none;border:0;color:#c4a7a6;font:600 11px inherit;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;border-radius:18px;transition:all .2s}
 .tabs button i{font-style:normal;font-size:22px;transition:transform .25s cubic-bezier(.3,1.6,.5,1)}.tabs button.on{background:#ffb35c22;color:#ffd29a}.tabs button.on i{transform:scale(1.18) translateY(-1px)}
 .garb{margin-top:16px;padding:12px 14px;border-radius:16px;background:#7be0a014;border:1px solid #7be0a033;position:relative}.garb span{display:block;font-size:12px;font-weight:700;color:#9fe8b8;margin-bottom:2px}.garb b{display:block;font-size:14px}.garb p{margin:2px 0 0;font-size:13px;color:var(--sub);line-height:1.5}
+.tip{margin-top:12px;font-size:13px;color:#ffd29a;background:#ffb35c12;border-radius:14px;padding:10px 12px;position:relative}
+.brand{background:linear-gradient(150deg,#4a1d3a,#24101d)}

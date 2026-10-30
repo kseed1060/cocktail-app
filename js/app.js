@@ -71,7 +71,7 @@ const sup="serviceWorker"in navigator&&"PushManager"in window&&"Notification"in 
 const b64=s=>{const p="=".repeat((4-s.length%4)%4),r=atob((s+p).replace(/-/g,"+").replace(/_/g,"/"));return Uint8Array.from(r,c=>c.charCodeAt(0))};
 const enc=o=>"CKT1."+btoa(String.fromCharCode(...new TextEncoder().encode(JSON.stringify(o)))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
 const show=sub=>{const j=sub.toJSON(),code=enc({e:j.endpoint,p:j.keys.p256dh,a:j.keys.auth});
-out.innerHTML=`<div class="gar">✅ 이 기기는 알림을 받고 있어요</div><button id="ncopy" class="linkbtn">기기 등록 코드 복사</button>`;
+btn.hidden=true;out.innerHTML=`<div class="gar">✅ 이 기기는 알림을 받고 있어요</div><button id="ncopy" class="linkbtn">기기 등록 코드 복사</button>`;
 $("ncopy").onclick=async()=>{let ok=0;try{await navigator.clipboard.writeText(code);ok=1}catch(_){const t=document.createElement("textarea");t.value=code;t.setAttribute("readonly","");t.style.cssText="position:fixed;opacity:0;left:-9999px";document.body.appendChild(t);t.select();try{ok=document.execCommand("copy")}catch(_){}t.remove()}$("ncopy").textContent=ok?"복사했어요 · 저에게 붙여 보내 주세요":"복사에 실패했어요, 다시 눌러 주세요"}};
 btn.onclick=async()=>{
 if(ios&&!sa){out.innerHTML=`<div class="gar">📱 아이폰은 홈 화면 앱에서만 알림을 받을 수 있어요.<br>① 사파리 아래 <b>공유</b> 버튼 → ② <b>홈 화면에 추가</b> → ③ 홈 화면의 '오늘의 한 잔' 아이콘으로 열고 다시 눌러 주세요.</div>`;return}

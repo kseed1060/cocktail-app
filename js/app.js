@@ -62,7 +62,7 @@ $("net").textContent=navigator.onLine?"🌍 온라인이라 세계 레시피도 
 document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("on",x===b));document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.dataset.v===b.dataset.t));scrollTo(0,0)});
 const tb=qs.get("tab");if(tb)document.querySelector(`.tabs button[data-t="${tb}"]`)?.click();
 setupPush();const si=qs.get("s");if(si!==null&&ST[+si])openStory(+si);
-if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js")}
+if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>r.update());let rl=0;navigator.serviceWorker.addEventListener("controllerchange",()=>{if(!rl){rl=1;location.reload()}})}
 init();
 
 function setupPush(){const out=$("nout"),btn=$("nbtn");if(!btn)return;

@@ -27,16 +27,16 @@ export function pick(mode, d = kst()) {
   const n = dayN(d), sp = SPECIAL[d.slice(5)], dow = new Date(d + "T00:00:00Z").getUTCDay();
   if (sp) {
     const r = byEn(sp[1][n % sp[1].length]);
-    if (mode === "morning") {
+    if (mode === "morning" || mode === "daily") {
       const ing = r[6].slice(0, 3).map(i => i[0]).join(", ");
       return { title: `${sp[0]} 준비해요`, body: `오늘 저녁엔 ${r[0]} 어때요? 🍸 ${ing} 미리 챙겨 두세요!`, url: url(r) };
     }
     return { title: "오늘의 한 잔", body: `오늘 밤은 ${r[0]} 한 잔과 함께 ${eul(sp[0].replace(/^\S+ /, ""))} 즐겨요 ${sp[0].split(" ")[0]}`, url: url(r) };
   }
-  if (mode === "morning") return null; // 기념일이 아니면 아침 알림 없음
+  if (mode === "morning") return null; // (구) 기념일 전용 아침 모드
   if (dow === 5) {
     const r = byEn(FRIDAY[n % FRIDAY.length]);
-    return { title: "🎉 불금이에요!", body: `주말 시작은 ${r[0]} 한 잔 어때요? 🍹 친구들과 함께라면 더 좋아요.`, url: url(r) };
+    return { title: "🎉 불금이에요!", body: `오늘 밤 주말 시작은 ${r[0]} 한 잔 어때요? 🍹 친구들과 함께라면 더 좋아요.`, url: url(r) };
   }
   const r = R[(n * 7) % R.length];
   return { title: "오늘의 한 잔", body: `오늘 밤은 ${r[0]} 어때요? 🍸\n📜 ${teaser(S[n % S.length])}`, url: url(r) };

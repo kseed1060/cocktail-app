@@ -1,7 +1,7 @@
-// GitHub Actions에서 실행: MODE=evening|morning, 비밀값 VAPID_PRIVATE/VAPID_PUBLIC/SUBSCRIPTIONS
+// GitHub Actions에서 실행: MODE=daily(기본, 매일 아침 10시 한 번)|evening|morning, 비밀값 VAPID_PRIVATE/VAPID_PUBLIC/SUBSCRIPTIONS
 import webpush from "web-push";
 import { pick, kst } from "./pick.mjs";
-const mode = process.env.MODE === "morning" ? "morning" : "evening";
+const mode = ["morning", "evening"].includes(process.env.MODE) ? process.env.MODE : "daily";
 const d = process.env.DATE || kst();
 const msg = pick(mode, d);
 console.log(`[${d} KST, ${mode}]`, msg ? JSON.stringify(msg) : "보낼 알림 없음");

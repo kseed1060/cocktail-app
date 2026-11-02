@@ -1,54 +1,70 @@
 name: 오늘의 한 잔 알림
-# 하루 한 번, 오전 10시(KST). GitHub 예약 실행은 몇 시간씩 늦을 수 있어서
-# 새벽에 여러 번 깨운 뒤 10시까지 기다렸다 보내고, 날짜별 표시로 중복 발송을 막아요.
+# 저녁 19:00 KST 매일 + 기념일엔 아침 10:00 KST.
+# GitHub 예약 실행은 몇 시간씩 늦을 수 있어서, 목표 시각보다 일찍 여러 번 깨운 뒤
+# 목표 시각까지 기다렸다 보내고, 날짜·모드별 표시(cache sent-YYYYMMDD-모드)로 중복을 막아요.
 on:
   schedule:
-    - cron: "0 20 * * *"   # 05:00 KST
-    - cron: "0 22 * * *"   # 07:00 KST
-    - cron: "0 0 * * *"    # 09:00 KST
-    - cron: "0 2 * * *"    # 11:00 KST (앞선 실행이 모두 밀렸을 때 대비)
+    - cron: "15 4 * * *"   # 13:15 KST → 19시 저녁 알림
+    - cron: "0 6 * * *"    # 15:00 KST
+    - cron: "0 8 * * *"    # 17:00 KST
+    - cron: "0 10 * * *"   # 19:00 KST (앞선 실행이 모두 밀렸을 때 대비)
+    - cron: "15 19 * * *"  # 04:15 KST → 10시 기념일 알림
+    - cron: "0 21 * * *"   # 06:00 KST
+    - cron: "0 23 * * *"   # 08:00 KST
+    - cron: "0 1 * * *"    # 10:00 KST (대비)
   workflow_dispatch:
     inputs:
+      mode: { description: "evening 또는 morning", default: "evening" }
       dry_run: { description: "1이면 실제로 보내지 않음", default: "1" }
       force: { description: "1이면 대기·중복 확인 없이 바로 실행", default: "1" }
       date: { description: "테스트용 날짜 YYYY-MM-DD (비우면 오늘 KST)", default: "" }
 permissions: { contents: read, actions: write }
-concurrency: { group: daily-push, cancel-in-progress: false }
+concurrency:
+  group: push-${{ github.event_name == 'schedule' && (contains('15 4 * * *|0 6 * * *|0 8 * * *|0 10 * * *', github.event.schedule) && 'evening' || 'morning') || inputs.mode }}
+  cancel-in-progress: false
 jobs:
   send:
     runs-on: ubuntu-latest
     timeout-minutes: 360
     env:
+      MODE: ${{ github.event_name == 'schedule' && (contains('15 4 * * *|0 6 * * *|0 8 * * *|0 10 * * *', github.event.schedule) && 'evening' || 'morning') || inputs.mode }}
       DRY_RUN: ${{ inputs.dry_run || '0' }}
       FORCE: ${{ inputs.force || '0' }}
+      DATE: ${{ inputs.date }}
     steps:
-      - name: KST 날짜
+      - uses: actions/checkout@v4
+      - name: 날짜·모드 확인
         id: d
-        run: echo "day=$(TZ=Asia/Seoul date +%Y%m%d)" >> "$GITHUB_OUTPUT"
-      - name: 오늘 이미 보냈는지 확인
+        run: |
+          echo "day=$(TZ=Asia/Seoul date +%Y%m%d)" >> "$GITHUB_OUTPUT"
+          echo "모드: $MODE"
+          if [ "$MODE" = "morning" ]; then
+            sp=$(node -e "import('./tools/pick.mjs').then(p=>console.log(p.pick('morning',process.env.DATE||p.kst())?1:0))")
+            [ "$sp" = "1" ] || { echo "기념일이 아니라 아침 알림 없음 → 바로 종료"; echo "skip=1" >> "$GITHUB_OUTPUT"; }
+          fi
+      - name: 이미 보냈는지 확인
         id: sent
-        if: env.FORCE != '1'
+        if: steps.d.outputs.skip != '1' && env.FORCE != '1'
         uses: actions/cache/restore@v4
-        with: { path: .sent, key: "sent-${{ steps.d.outputs.day }}", lookup-only: true }
-      - name: 10시(KST)까지 기다리기
+        with: { path: .sent, key: "sent-${{ steps.d.outputs.day }}-${{ env.MODE }}", lookup-only: true }
+      - name: 목표 시각(KST)까지 기다리기
         id: wait
-        if: env.FORCE == '1' || steps.sent.outputs.cache-hit != 'true'
+        if: steps.d.outputs.skip != '1' && steps.sent.outputs.cache-hit != 'true'
         run: |
           [ "$FORCE" = "1" ] && { echo "테스트 실행: 대기 생략"; echo "go=1" >> "$GITHUB_OUTPUT"; exit 0; }
+          if [ "$MODE" = "morning" ]; then T="10:00"; END="14:00"; else T="19:00"; END="22:00"; fi
           now=$(date +%s); day=$(TZ=Asia/Seoul date +%F)
-          t10=$(TZ=Asia/Seoul date -d "$day 10:00" +%s); t20=$(TZ=Asia/Seoul date -d "$day 20:00" +%s)
-          if [ "$now" -ge "$t20" ]; then echo "이미 20시(KST)가 지나 오늘은 보내지 않아요"; exit 0; fi
-          wait=$((t10-now)); max=$((5*3600+50*60))
+          tt=$(TZ=Asia/Seoul date -d "$day $T" +%s); te=$(TZ=Asia/Seoul date -d "$day $END" +%s)
+          if [ "$now" -ge "$te" ]; then echo "$END(KST)가 지나 오늘은 보내지 않아요"; exit 0; fi
+          wait=$((tt-now)); max=$((5*3600+50*60))
           if [ "$wait" -gt "$max" ]; then echo "너무 이른 실행(${wait}s) → 다음 예약 실행에 맡겨요"; exit 0; fi
-          if [ "$wait" -gt 0 ]; then echo "${wait}초 기다려요"; sleep "$wait"; fi
+          if [ "$wait" -gt 0 ]; then echo "$T KST까지 ${wait}초 기다려요"; sleep "$wait"; fi
           echo "go=1" >> "$GITHUB_OUTPUT"
-      - name: 대기 중 다른 실행이 보냈는지 다시 확인
+      - name: 기다리는 동안 다른 실행이 보냈는지 다시 확인
         id: sent2
         if: steps.wait.outputs.go == '1' && env.FORCE != '1'
         uses: actions/cache/restore@v4
-        with: { path: .sent, key: "sent-${{ steps.d.outputs.day }}", lookup-only: true }
-      - uses: actions/checkout@v4
-        if: steps.wait.outputs.go == '1' && steps.sent2.outputs.cache-hit != 'true'
+        with: { path: .sent, key: "sent-${{ steps.d.outputs.day }}-${{ env.MODE }}", lookup-only: true }
       - uses: actions/setup-node@v4
         if: steps.wait.outputs.go == '1' && steps.sent2.outputs.cache-hit != 'true'
         with: { node-version: 20 }
@@ -60,14 +76,12 @@ jobs:
           node tools/send.mjs
           echo "ok=1" >> "$GITHUB_OUTPUT"
         env:
-          MODE: daily
-          DATE: ${{ inputs.date }}
           VAPID_PUBLIC: ${{ secrets.VAPID_PUBLIC }}
           VAPID_PRIVATE: ${{ secrets.VAPID_PRIVATE }}
           SUBSCRIPTIONS: ${{ secrets.SUBSCRIPTIONS }}
-      - name: 오늘 보냄 표시
-        if: steps.push.outputs.ok == '1' && env.DRY_RUN != '1' && inputs.date == ''
+      - name: 보냄 표시
+        if: steps.push.outputs.ok == '1' && env.DRY_RUN != '1' && env.DATE == ''
         run: mkdir -p .sent && date -u > .sent/at
-      - if: steps.push.outputs.ok == '1' && env.DRY_RUN != '1' && inputs.date == ''
+      - if: steps.push.outputs.ok == '1' && env.DRY_RUN != '1' && env.DATE == ''
         uses: actions/cache/save@v4
-        with: { path: .sent, key: "sent-${{ steps.d.outputs.day }}" }
+        with: { path: .sent, key: "sent-${{ steps.d.outputs.day }}-${{ env.MODE }}" }
